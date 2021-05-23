@@ -11,20 +11,7 @@ function initMap() {
         zoom: 14,
       });
 	
-	  const flightPlanCoordinates = [
-		{ lat: 37.772, lng: -122.214 },
-		{ lat: 21.291, lng: -157.821 },
-		{ lat: -18.142, lng: 178.431 },
-		{ lat: -27.467, lng: 153.027 },
-	  ];
-	  const flightPath = new google.maps.Polyline({
-		path: wayPoints,
-		geodesic: true,
-		strokeColor: "#FF0000",
-		strokeOpacity: 1.0,
-		strokeWeight: 2,
-	  });
-	  flightPath.setMap(map);
+	  
   	addMarkers();
 	
 
@@ -60,22 +47,8 @@ async function getBusLocations(){
 	
 }
 
-async function getStops() {
-	var url = 'https://api-v3.mbta.com/stops?api_key=ca34f7b7ac8a445287cab52fb451030a&filter[route]=47';	
-	var response = await fetch(url);
-	var arr = await response.json();
-	var data = arr.data;
-	for(let i = 0; data.length > i; i++) {
-		// var lat = "lat: "+ (data[i].attributes.latitude);
-		// var lng = "lng: " + (data[i].attributes.longitude);
-		var lat = data[i].attributes.latitude;
-		var lng = data[i].attributes.longitude;
-		var latLng = lat +", " + lng;
-		wayPoints.push(latLng);
-	}
-		
-		
-	console.log(wayPoints);
+async function drawRoutes () {
+	var stop = await getStops();
 
 	const routeLines = new google.maps.Polyline({
 		path: wayPoints, 
@@ -86,6 +59,23 @@ async function getStops() {
 	});
 
 	routeLines.setMap(map);
+
+}
+async function getStops() {
+	var url = 'https://api-v3.mbta.com/stops?api_key=ca34f7b7ac8a445287cab52fb451030a&filter[route]=47';	
+	var response = await fetch(url);
+	var arr = await response.json();
+	var data = arr.data;
+	for(let i = 0; data.length > i; i++) {
+		var latLng = {
+			lat: data[i].attributes.latitude, 
+			lng: data[i].attributes.longitude
+		};
+		wayPoints.push(latLng);
+	}
+	drawRoutes();
+	return wayPoints;
+	
 
 }
 
